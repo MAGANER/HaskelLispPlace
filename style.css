@@ -3,14 +3,69 @@
     margin: 0;
     border: 0;
 }
-*,*::before,*::after{
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-:focus,:active{outline: none;}
-a:focus, a:active{outline: none;}
 
-body{
-    background:black;
+@font-face {
+    font-family:"EightBits";
+    src:local("EightBits"),url("assets/EightBits.ttf");
+}
+
+body
+{
+    background: rgb(0,0,0);
+}
+.header
+{
+    border:2px solid white;
+    height:20%;
+    width:98%;
+    margin-left:1%;
+    margin-top:1%;
+    font-size:40px;
+    text-align:center;
+}
+
+.text
+{
+    font-family:"EightBits";
+    color:green;
+}
+.main_block
+{
+    height:400px;
+    width:40%;
+    margin-top:5%;
+    margin-left:30%;
+}
+.lil_title
+{
+    font-size:39px;
+    text-align:center;
+}
+.lil_title2
+{
+    font-size:36px;
+    color:white;
+}
+
+.main_block
+{
+    height:400px;
+    width:40%;
+    margin-top:5%;
+    margin-left:30%;
+}
+.sub_block
+{
+    position:relative;
+    margin-left:35%;
+}
+
+a
+{
+    text-decoration:none;
+    color:white;
+}
+a:hover
+{
+    color:magenta;
 }

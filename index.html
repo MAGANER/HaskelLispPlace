@@ -4,12 +4,47 @@
   <meta charset="utf-8" />
   <title>Yet another personal site</title>
   <link rel="stylesheet" href="style.css" />
+
+  <script>
+    var age = document.getElementById("age");
+    var cur_year = new Date().getFullYear();
+    var curr_age = '' + (cur_year-2002);
+    age.textContent = "level:&emsp;&ensp; "+ curr_age;
+  </script>
 </head>
 <body>
   <div class="header">
+    <h1 class="text">Yet another personal site</h1>
   </div>
   <div class="main_block">
-
+    
+    <h3 class="lil_title text">--- Character stats ---</h3>
+    
+    <div class="sub_block">
+      <dl class="text lil_title2">
+	<dt>name: &ensp;&ensp; ian</dt>
+	<dt>class:&emsp;&ensp; programmer</dt>
+	<dt id="age">level:&emsp;&ensp; 21</dt>
+      </dl>
     </div>
+    
+    <h3 class="lil_title text">--- Additional links ---</h3>
+    
+    <div class="sub_block">
+      <dl class="text lil_title2">
+	<dt><a href="https://haskispire.itch.io/">&emsp;&ensp; itch</a></dt>
+	<dt><a href="https://alterac.bandcamp.com/">&emsp;bandcamp</a></dt>
+      </dl>
+    </div>
+
+    <h3 class ="lil_title text">--- Content ---</h3>
+    <div class="sub_block">
+      <dl class="text lil_title2">
+	<dt><a href="#">Essays/Articles</a></dt>
+	<dt><a href="#">&ensp;Applications</a></dt>
+      </dl>
+    </div>
+    
+  </div>
 </body>
 </html>
