@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title></title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;1,100;1,300;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="text">
+    <h1>My thoughts on the game architecture</h1>
+<br>
+
+<h3>Introduction</h3>
+
+ <p> 
+     When you make a decision to write a game, you have two ways to do this:
+     Pick up the game engine or use a programming language you like with
+     some library to do things associated with drawing, playing sound, managing input, e.t.c.
+</p>
+<p>
+     If you chose the first way, then perhaps this article will not be interesting for you since the game engine has
+     everything you need and all you might need in the future. It is the mighty tool that hides all complexity from you
+     and provides the ability to reach the goal as fast as possible.
+</p>
+
+<p>
+    This article is about the second way mentioned. On the one hand, it can look easier if you're familiar with
+    some programming language, then it's not a big deal to choose a library and to write yet another application
+    and that's true for small games only.
+    On the other hand, situations become different as the game grows. The poorly designed structure of the game's
+    logic is the root of evil, leading to bad maintainability and an associated inability to extend the game.
+    A problem of the same kind was faced by the programming industry a long time ago.
+    The procedural programming paradigm turned out to not be suitable enough for applications
+    with a large amount of source code, so Alan Key's OOP looked like a magic bullet to solve this problem.
+    But OOP is good if you know how to use it. It's not just different syntax, but an entirely different way to express ideas in
+    terms of classes and objects.
+    <br><br>  
+    So, this is an article, and the ideas presented here are the result of my reflections about mistakes I made during
+    developing my old game, "I love pain".
+    
+    <br><br>I already implemented these ideas in another game "Snektris", so I have something to say.
+</p>
+
+<h3>The definition of a game or the statement of a question</h3>
+<p>
+    First of all, I should answer the question: What is a game? And there is a suitable definition.
+    A game is a set of objects and rules to operate over these objects. This definition is the starting point of
+    my further reasoning, and if this article ironically hints at its philosophical nature,
+    then this is close to the truth, since it's not a tutorial or manual. It sheds light on the problem
+    and tries to offer a solution.
+   <br><br>
+   
+   The definition above has everything I want to explain: objects and rules, as well as how to combine them together
+   in a ready-made and well-programmed game.
+   <br><br>
+   
+   Let's start with objects. There are plenty of objects involved in the game process: monsters, bullets, coins,
+   tables, giving you bad advice, deadly traps, and many other ones. Each of them is represented in a different way
+   and has a unique way to interact with a player. The language you would use probably supports OOP, unless it's not
+   purely functional programming language like Haskell. Even if you are going to use C, you can implement C-style
+   OOP: Gtk and Gnome are good examples.
+   <br><br>
+   
+   <strong>So this is the first principle: everything in a game is an object.</strong>
+   <br><br>
+   
+   It's time to think about rules. Rules are a bunch of functions, procedures, and class methods, and all they do is
+   transforming some state A into state B. Increase the player's health, when you drink a potion. Update the ammo variable,
+   if player presses the R button. Nothing special. But I provide these examples to reveal the notions mentioned.
+   <br><br>
+   
+   <strong>The second principle is partially derived from Unix's philosophy:
+   One rule is to do one task as well as possible.</strong>
+   <br><br>
+
+   It's not good practice to write one big procedure that performs all the necessary actions.
+   This is bad code. Imagine that you discover a function written by your teammate or even yourself
+   that checks collisions and updates the player's inventory. People call it spaghetti code.
+</p>
+
+
+<h3>Uniting the pieces</h3>
+<p>
+   The game definition shows the gears of which it consists, but it doesn't say anything
+   about their union. So after I described the building blocks of each game, now
+   I'm going to dive deeper to show how everything can be combined.
+   <br><br>
+   
+   Let's imagine a platformer game. It has a start menu that meets the player after he runs the game,
+   game itself and the screen of death.
+   <br><br>
+   
+   Each stage of the game—the menu, jumping on platforms, and death screen—are separate scenes.
+   <br><br>
+
+   To represent a scene you are going to use class and we're getting closer to see how to unite
+   objects of scene with events,apllied to these objects. Each scene has one thing in common -
+   they usually end due to special conditions - pressing the "Start Game" button, death or reaching a goal - 
+   completion of the level. Each scene inherits from a abstract class, which fields and methods will be
+   described further.
+   <br><br>
+
+   So there is an object that has only one thing to do: process the current scene and switch to another one if the current
+   scene should be changed. I call it Scene Manager. As input, it gets the first scene, then it creates a scene object
+   and call the "run" method if the scene shouldn't change (the scene has a method to check it). That is an obvious reason
+   why	each  scene must inherit the abstract class to use polymorphic methods. In case the scene needs to be changed,
+   the manager can obtain the next scene from the current scene, so every scene has a method
+   (that is defined as virtual in the base class) that returns the next scene.
+   <br><br>
+
+
+   At this point, we discover an advantage of the approach: source code does not become a mess, and there is no
+   problem to write the project within a team because all classes are isolated from each other. So one developer can
+   work on one class, and it won't afflict another developer's task.
+   <br><br>
+
+   But what about the scene itself? How does it look? Due to inheritance from an abstract scene, it must
+   implement the run method as well as other virtual methods. You might think of the "run" method as a regular "update"
+   function in the game cycle.
+   Also, because of the single responsibility principle, one class has only one role in the application architecture, so scene
+   manager, being passed to the Render or Window class, processes all scenes, but it doesn't draw,
+   since it's what the Render class should do.
+   Following the second principle related to events or functions, the totality of which forms the game cycle,
+   menu cycle, we can face a big function with a high number of conditional branches associated with some events and
+   events invoked without any condition.
+   <br><br>
+   Developing every event, you write a function, then invoke it inside the "update" function, and as a result, you
+   build your game and test the written function, repeating these steps until the game is finished.
+   <br><br>
+   I have an abstraction to make the scene more declarative. As you already see, there are only two types of events in
+   game: conditional events and non-conditional ones. So an event can be represented as a pair of two functions (this pair
+   must be a class if you use OOP language) - predicate (condition) and action.
+   It gives an ability to tightly bind action with conditions to execute it. In the case of non-conditional events,
+   A predicate is a boolean function that always returns true. This short description lets us create a class to manage events
+   objects: it has two lists for each type of event (conditional and non-conditional) and methods to add depending
+   on type, and the last two ones are dedicated to return events.
+   <br>
+   Sure, you can create your own types of events. For example, "Snektris" has a type of event that is invoked after
+   snake's death, but they must be executed in the game, and after finishing these events, the game switches to the death screen.
+   <br><br>
+   Therefore, each scene needs its own event manager. That's why I say we can write scenes in a more declarative style.
+   Event manager is defined in the base class, so while creating your own scene, you don't need to create it, but write
+   events and pass them to the event manager. And the scene manager gets the events'
+   lists and iterates over them, checking conditions and running them in case they should.
+   <br><br>
+   It is a brief but fairly complete explanation. Now, summing up, let's look at how everything works together:<br><br>
+   
+   <strong>1)</strong>Scenes are obviously rendered, so there is a Render or GameWindow class. Its goal is to use a scene manager that
+   process the current scene—run events, draw objects, switch to another one when time has come.<br><br>
+   <strong>2)</strong>Scene Manager gets a list of scenes, and it doesn't know almost anything about scenes—only related events.<br><br>
+   <strong>3)</strong>The scene is where all the hard work is being done. It is simply a combination of objects and an event manager that has
+   a sequence of actions (events) that should be done while the scene is running.<br><br>
+   <strong>4)</strong>An event is a pair of predicate and function.<br><br>
+   <strong>5)</strong>Event manager is just class that sorts events and provides easy access to them.<br><br>
+</p>
+  </div>
+</body>
+</html>
